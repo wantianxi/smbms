@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.smbms.mapper.UserMappers">
+    <insert id="add">
+        insert into smbms_user (userCode,userName,userPassword,gender,
+                                birthday,phone,address,userRole,createdBy,creationDate,modifyBy,modifyDate,idPicPath)
+        values (#{userCode},#{userName},#{userPassword},#{gender},
+                #{birthday},#{phone},#{address},#{userRole},#{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{idPicPath});
+
+    </insert>
+    <update id="Update">
+        update   smbms_user
+        <set>
+            <if test="userCode != null">userCode=#{userCode},</if>
+            <if test="userName != null">userName=#{userName},</if>
+            <if test="userPassword != null">userPassword=#{userPassword},</if>
+            <if test="gender != null">gender=#{gender},</if>
+            <if test="birthday != null">birthday=#{birthday},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="address != null">address=#{address},</if>
+            <if test="userRole != null">userRole=#{userRole},</if>
+            <if test="modifyBy != null">modifyBy=#{modifyBy},</if>
+            <if test="modifyDate != null">modifyDate=#{modifyDate}</if>
+        </set>
+        where id = #{id}
+
+
+    </update>
+    <delete id="dele">
+        delete from smbms_user where id=#{id}
+    </delete>
+
+    <select id="getById" resultType="com.smbms.pojo.User">
+        select * from smbms_user where id=#{id}
+    </select>
+    <select id="getlist2" resultType="com.smbms.pojo.User">
+        select * from smbms_user
+        <where>
+            <if test="userName !=null and userName!=''   ">
+                userName=#{userName}
+            </if>
+            <if test="userRole!=null">
+                and userRole=#{userRole}
+            </if>
+        </where>
+    </select>
+    <select id="getByname_pwd" resultType="com.smbms.pojo.User">
+        select * from smbms_user
+        where userCode=#{userCode} and userPassword=#{pwd}
+    </select>
+    <select id="getByuserCode" resultType="com.smbms.pojo.User">
+        select * from smbms_user
+        where userCode=#{userCode}
+    </select>
+
+
+
+    <resultMap id="getlist" type="com.smbms.pojo.User">
+        <id property="id" column="id"/>
+
+        <result property="userRoleName" column="roleName" />
+    </resultMap>
+
+    <select id="getlist" resultMap="getlist">
+
+        SELECT *,roleName FROM smbms_user s1,smbms_role s2
+
+        WHERE s1.userRole=s2.id
+    </select>
+
+
+
+
+
+<!--    查询记录总条数-->
+    <select id="getUserCount" resultType="int">
+        select count(*) from smbms_user
+        <where>
+            <if test="queryname!=null and queryname!=''">
+                userName like Concat('%',#{queryname},'%')
+            </if>
+            <if test="queryUserRole!=null and queryUserRole!=0">
+                and userRole=#{queryUserRole}
+            </if>
+        </where>
+    </select>
+<!--    查询当前页面用户列表-->
+    <select id="getuserlist" resultMap="getlist">
+        select *,roleName from smbms_user s,smbms_role s2
+        <where>
+        s.userRole=s2.id
+            <if test="queryname!=null and queryname!=''">
+               and s.userName like Concat('%',#{queryname},'%')
+            </if>
+            <if test="queryUserRole!=null and queryUserRole!=0">
+                and s.userRole=#{queryUserRole}
+            </if>
+        </where>
+        LIMIT #{startIndex},#{pageSize}
+    </select>
+
+</mapper>
